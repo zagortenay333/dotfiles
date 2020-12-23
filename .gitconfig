@@ -1,0 +1,10 @@
+[user]
+    name = zagortenay333
+[push]
+    default = simple
+[core]
+    editor = gvim -f
+    pager = less -+$LESS -R
+[mergetool]
+    keepBackup = false
+    path = /usr/bin/meld

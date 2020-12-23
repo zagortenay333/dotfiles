@@ -1,0 +1,10 @@
+#!/bin/bash
+
+dir="${BASH_SOURCE%/*}"
+
+ln -rfs "$dir/.vimrc" ~/.vimrc
+ln -rfs "$dir/.zshrc" ~/.zshrc
+ln -rfs "$dir/.gitconfig" ~/.gitconfig
+
+mkdir -p ~/".vim/after/syntax/"
+find "$dir/vim" -type f -iname *.vim -execdir ln -svrf {} ~/.vim/after/syntax \;
