@@ -12,8 +12,11 @@ syntax on
 set background=dark
 set termguicolors
 
-set statusline=%<%F\ \ %=\ %l\ %c
+" set rulerformat=%40(%#BFaint#%=%t\ \ %l:%c%)
+" set laststatus=0
+set statusline=%<%F\ \ \ %=%l\ %c
 set laststatus=2 " Always show status line.
+
 set showcmd
 set nonumber " Don't show line numbers
 set noshowmode " Don't show mode. That's just silly.
@@ -183,7 +186,7 @@ endf
 func! Lister(list, prompt, prompt_color) abort
     func! Lister_close(selection, do_vert)
         let l:buf = bufnr("%")
-        setlocal laststatus=2
+        " setlocal laststatus=2
         wincmd p
         exec "bwipe" l:buf
         redraw
@@ -509,6 +512,7 @@ call s:hi("Debug", s:fg, "", "none")
 " @@@ color / default groups
 " ==============================================================================
 call s:hi("Normal", s:fg, s:bg, "")
+call s:hi("NormalAlt", s:fg, s:bg_faint, "")
 call s:hi("Search", s:bg, s:cyan, "bold") " Remaining search results
 call s:hi("IncSearch", s:bg, s:yellow, "bold") " Current search result
 
