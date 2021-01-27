@@ -184,9 +184,11 @@ endf
 "     @selection  : string (selected line)
 "     @vertically : bool   (true if user made selection with ctrl-v)
 func! Lister(list, prompt, prompt_color) abort
-    func! Lister_close(selection, do_vert)
+    let l:laststatus_backup = &l:laststatus
+
+    func! Lister_close(selection, do_vert, laststatus_backup)
         let l:buf = bufnr("%")
-        " setlocal laststatus=2
+        let &l:laststatus=a:laststatus_backup
         wincmd p
         exec "bwipe" l:buf
         redraw
@@ -198,7 +200,7 @@ func! Lister(list, prompt, prompt_color) abort
         \ nobuflisted\ nonumber\ norelativenumber\ noswapfile\ nowrap\
         \ foldmethod=manual\ nofoldenable\ modifiable\ noreadonly
 
-    setlocal cursorline | setlocal laststatus=0
+    setlocal cursorline | let &l:laststatus=0
 
     call setline(1, a:list)
     let l:needle  = ""
@@ -210,7 +212,7 @@ func! Lister(list, prompt, prompt_color) abort
         try
             let ch = getchar()
         catch /^Vim:Interrupt$/  " Ctrl-c
-            return Lister_close('', 0)
+            return Lister_close('', 0, l:laststatus_backup)
         endtry
 
         if ch ==# "\<bs>" " Backspace
@@ -240,11 +242,11 @@ func! Lister(list, prompt, prompt_color) abort
             call cursor(1, 1)
             call add(l:undoseq, l:seq_new != l:seq_old)
         elseif ch ==# 0x1B " Escape
-            return Lister_close('', 0)
+            return Lister_close('', 0, l:laststatus_backup)
         elseif ch ==# 0x0D " Enter
-            return Lister_close(getline('.'), 0)
+            return Lister_close(getline('.'), 0, l:laststatus_backup)
         elseif ch ==# 0x16 " CTRL-v
-            return Lister_close(getline('.'), 1)
+            return Lister_close(getline('.'), 1, l:laststatus_backup)
         elseif ch ==# 0x0B " Ctrl-k
             norm k
         elseif ch ==# 0x0A " Ctrl-j
@@ -296,7 +298,7 @@ endf
 
 
 " ==============================================================================
-" @@@ maps
+" @@@ keybindings
 " ==============================================================================
 cabbrev h vert h
 cabbrev term vert term ++close
@@ -309,7 +311,7 @@ imap JK <Esc><Esc>
 imap Jk <Esc><Esc>
 tmap <Esc> <C-\><C-n>
 
-map <silent> <Leader>s :w<CR>
+map <silent> <Leader>s :write<CR>
 map <silent> <Leader>q :close<CR>
 
 nnoremap L w
@@ -388,10 +390,14 @@ noremap <A-j> <C-w>4-
 noremap <A-k> <C-w>4+
 noremap <A-l> <C-w>4>
 
-augroup netrw_mapping
+augroup keybindings
     au!
-    au filetype netrw map <buffer> o <CR>
+
     au filetype netrw map <buffer> I %
+    au filetype netrw map <buffer> o <CR>
+
+    " Save file when exiting insert mode.
+    au InsertLeave * :silent! write
 augroup END
 
 
@@ -406,11 +412,12 @@ let s:red       = "BD5157"
 let s:blue      = "6589AA"
 let s:cyan      = "558F7F"
 let s:brown     = "A45D43"
-let s:green     = "809044"
-let s:green2    = "689d6a"
+let s:green     = "7E9038"
+let s:green2    = "63A465"
 let s:orange    = "D2651D"
 let s:yellow    = "C19133"
 let s:magenta   = "AA73A1"
+
 
 " ==============================================================================
 " @@@ color / utils and settings
