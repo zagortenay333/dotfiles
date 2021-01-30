@@ -274,16 +274,6 @@ func! List_buffers()
     endif
 endf
 
-func! List_regions()
-    let lines = []
-    exec "g/ @@@/call add(lines, strpart(getline('.'), stridx(getline('.'), '@@@')) . ' -- ' . line('.'))"
-    let [line, _] = Lister(lines, 'Regions >>> ', 'Bold')
-    if line == '' | return | endif
-    let [_, lnum] = split(line, ' -- ')
-    call cursor(lnum - 1, 1)
-    exec "normal zt"
-endf
-
 func! List_custom_commands()
     let l:commands = [ 'Strip_trailing_whitespace', 'Open_vimrc' ]
     let [command, _] = Lister(commands, 'Commands >>> ', 'Bold')
@@ -350,7 +340,6 @@ nnoremap <silent> <Leader>, :call Search_in_files('')<CR>
 nnoremap <silent> <Leader>f :call List_files()<CR>
 nnoremap <silent> <Leader>b :call List_buffers()<CR>
 nnoremap <silent> <Leader>c :call List_custom_commands()<CR>
-nnoremap <silent> <Leader>r :call List_regions()<CR>
 nnoremap <silent> <Leader>t :vert term ++close<CR>
 
 nnoremap <silent> ga :set opfunc=Align<CR>g@
