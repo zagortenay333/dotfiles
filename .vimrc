@@ -266,7 +266,7 @@ func! List_files()
 endf
 
 func! List_buffers()
-    let buffers = map(split(execute('ls'), '\n'), 'strcharpart(v:val, 1)')
+    let buffers = map(split(execute('ls'), '\n'), 'strcharpart(v:val, 0)')
     let [buf, do_vert] = Lister(buffers, 'Buffers >>> ', 'Bold')
     if     buf == '' | return
     elseif do_vert   | exec "vs \| buffer" split(buf)[0]
@@ -384,9 +384,6 @@ augroup keybindings
 
     au filetype netrw map <buffer> I %
     au filetype netrw map <buffer> o <CR>
-
-    " Save file when exiting insert mode.
-    au InsertLeave * :silent! write
 augroup END
 
 
