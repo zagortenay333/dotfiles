@@ -93,7 +93,9 @@ augroup END
 func! Prompt(str, hi_group)
     redraw
     execute('echohl ' . a:hi_group)
+    call inputsave()
     let result = input(a:str, '')
+    call inputrestore()
     redraw
     return result
 endf
