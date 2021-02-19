@@ -87,78 +87,6 @@ augroup autocommands
     au FileType netrw set nocursorline
 augroup END
 
-func! Go_to_next_search_result(direction)
-    let cmd = (a:direction == 1) ? "\<C-g>" : "\<C-t>"
-    return repeat(cmd, 1)
-endf
-
-func! Is_in_search_mode()
-    return getcmdtype() =~# '[/\?]'
-endf
-
-func! Align(type, ...)
-    let char    = nr2char(getchar())
-    let lines   = a:0 ? range(line("'<"), line("'>")) : range(line("'["), line("']"))
-    let max_col = 0
-
-    for i in lines
-        call cursor(i, 0)
-        let col = stridx(getline(i), char)
-        if col > max_col | let max_col = col | endif
-    endfor
-
-    for i in lines
-        call cursor(i, 0)
-
-        let col = stridx(getline(i), char)
-        if col == -1 | continue | endif
-
-        let n_to_insert = max_col - col
-        if n_to_insert == 0 | continue | endif
-
-        call cursor(i, col)
-        exec "normal! " n_to_insert . "a \<esc>"
-    endfor
-endf
-
-func! Toggle_comment(type, ...)
-    if !exists("s:comment_map") | let s:comment_map = { "c": '\/\/', "cpp": '\/\/', "rust": '\/\/', "lua": '--', "python": '#', "javascript": '\/\/', "sh": '#', "desktop": '#', "conf": '#', "profile": '#', "bashrc": '#', "bash_profile": '#', "vim": '"', } | endif
-    if !has_key(s:comment_map, &filetype) | echo "No comment leader found for filetype" | return | endif
-
-    let leader = s:comment_map[&filetype]
-    let lines  = a:0 ? range(line("'<"), line("'>")) : range(line("'["), line("']"))
-
-    for i in lines
-        call cursor(i, 0)
-        let line = getline(i)
-
-        if line =~ '^\s*$' | continue | endif
-        if line =~ '^\s*' . leader | exec 'silent s/\v\s*\zs' . leader . '\s*\ze//' | else | exec 'silent s/\v^(\s*)/\1' . leader . ' /' | endif
-    endfor
-endf
-
-func! s:cmd.Strip_trailing_whitespace()
-    let _s=@/
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    let @/=_s
-    call cursor(l, c)
-endf
-
-func! s:cmd.Open_vimrc()
-    :e $MYVIMRC
-endf
-
-func! s:cmd.Reload_vimrc()
-    source $MYVIMRC
-endf
-
-func! s:cmd.Diff_against_n_minutes_ago()
-    let n = Prompt('How many minutes ago >>> ', 'Bold')
-    if n != '' | execute('earlier ' . n . 'm | %y | later ' . n . 'm | diffthis | vnew | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal nobuflisted | put | 1d | diffthis') | endif
-endf
-
 " @prompt       : string
 " @prompt_color : string (a highlight group)
 " @returns      : string
@@ -248,6 +176,74 @@ func! Lister(list, prompt, prompt_color) abort
     endwhile
 endf
 
+func! Go_to_next_search_result(direction)
+    let cmd = (a:direction == 1) ? "\<C-g>" : "\<C-t>"
+    return repeat(cmd, 1)
+endf
+
+func! Is_in_search_mode()
+    return getcmdtype() =~# '[/\?]'
+endf
+
+func! Align(type, ...)
+    let char    = nr2char(getchar())
+    let lines   = a:0 ? range(line("'<"), line("'>")) : range(line("'["), line("']"))
+    let max_col = 0
+
+    for i in lines
+        call cursor(i, 0)
+        let col = stridx(getline(i), char)
+        if col > max_col | let max_col = col | endif
+    endfor
+
+    for i in lines
+        call cursor(i, 0)
+
+        let col = stridx(getline(i), char)
+        if col == -1 | continue | endif
+
+        let n_to_insert = max_col - col
+        if n_to_insert == 0 | continue | endif
+
+        call cursor(i, col)
+        exec "normal! " n_to_insert . "a \<esc>"
+    endfor
+endf
+
+func! Toggle_comment(type, ...)
+    if !exists("s:comment_map") | let s:comment_map = { "c": '\/\/', "cpp": '\/\/', "rust": '\/\/', "lua": '--', "python": '#', "javascript": '\/\/', "sh": '#', "desktop": '#', "conf": '#', "profile": '#', "bashrc": '#', "bash_profile": '#', "vim": '"', } | endif
+    if !has_key(s:comment_map, &filetype) | echo "No comment leader found for filetype" | return | endif
+
+    let leader = s:comment_map[&filetype]
+    let lines  = a:0 ? range(line("'<"), line("'>")) : range(line("'["), line("']"))
+
+    for i in lines
+        call cursor(i, 0)
+        let line = getline(i)
+
+        if line =~ '^\s*$' | continue | endif
+        if line =~ '^\s*' . leader | exec 'silent s/\v\s*\zs' . leader . '\s*\ze//' | else | exec 'silent s/\v^(\s*)/\1' . leader . ' /' | endif
+    endfor
+endf
+
+func! s:cmd.Strip_trailing_whitespace()
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    let @/=_s
+    call cursor(l, c)
+endf
+
+func! s:cmd.Open_vimrc()
+    :e $MYVIMRC
+endf
+
+func! s:cmd.Diff_against_n_minutes_ago()
+    let n = Prompt('How many minutes ago >>> ', 'Bold')
+    if n != '' | execute('earlier ' . n . 'm | %y | later ' . n . 'm | diffthis | vnew | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal nobuflisted | put | 1d | diffthis') | endif
+endf
+
 func! List_files()
     let files = globpath('.', '**/*', 0, 1)
     " let files = systemlist("find . -not -path '*/\.*' ! -name '*.o' ! -name '*.dep'")
@@ -277,7 +273,6 @@ func! Search_in_files(needle)
     if text == '' | return | endif
     exec 'vimgrep /\C\V' . escape(text, '/\') . '/j ** | copen | match QuickFixSearch /\V' . escape(text, '/\') . '/'
 endf
-
 
 " ==============================================================================
 " @@@ keybindings
