@@ -72,6 +72,8 @@ set guioptions+=! " External commands are executed in a terminal window.
 " ==============================================================================
 " @@@ functions and autocommands
 " ==============================================================================
+let s:cmd = {}
+
 augroup autocommands
     au!
 
@@ -135,33 +137,37 @@ func! Toggle_comment(type, ...)
     endfor
 endf
 
+func! s:cmd.Strip_trailing_whitespace()
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    let @/=_s
+    call cursor(l, c)
+endf
+
+func! s:cmd.Open_vimrc()
+    :e $MYVIMRC
+endf
+
+func! s:cmd.Reload_vimrc()
+    source $MYVIMRC
+endf
+
+func! s:cmd.Diff_against_n_minutes_ago()
+    let n = Prompt('How many minutes ago >>> ', 'Bold')
+    if n != '' | execute('earlier ' . n . 'm | %y | later ' . n . 'm | diffthis | vnew | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal nobuflisted | put | 1d | diffthis') | endif
+endf
+
 " @prompt       : string
 " @prompt_color : string (a highlight group)
 " @returns      : string
-func! Prompt(prompt, prompt_color) abort
-    let l:text = ""
-
-    while 1
-        redraw | execute('echohl ' . a:prompt_color) | echon a:prompt | echohl Normal | echon l:text | echohl None
-
-        try
-            let ch = getchar()
-        catch /^Vim:Interrupt$/  " CTRL-C
-            redraw | echo "\r" | return ''
-        endtry
-
-        if ch ==# "\<bs>" " Backspace
-            let l:text  = l:text[:-2]
-        elseif ch >=# 0x20 " Printable character
-            let l:text .= nr2char(ch)
-        elseif ch ==# 0x1B " Escape
-            redraw | echo "\r" | return ''
-        elseif ch ==# 0x0D " Enter
-            redraw | echo "\r" | return text
-        elseif ch ==# 0x17 " CTRL-W (clear)
-            let l:text = ""
-        endif
-    endwhile
+func! Prompt(str, hi_group)
+    redraw
+    execute('echohl ' . a:hi_group)
+    let result = input(a:str, '')
+    redraw
+    return result
 endf
 
 " @list         : list (list of lines to fuzzy search)
@@ -261,34 +267,15 @@ func! List_buffers()
     endif
 endf
 
-func! Strip_trailing_whitespace()
-    let _s=@/
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    let @/=_s
-    call cursor(l, c)
+func! List_custom_commands()
+    let [f, _] = Lister(keys(s:cmd), 'Custom Functions >>> ', 'Bold')
+    if f != '' | execute('call s:cmd.' . f . '()') | endif
 endf
 
 func! Search_in_files(needle)
     let text = Prompt('Search in files >>> ', 'Bold')
     if text == '' | return | endif
     exec 'vimgrep /\C\V' . escape(text, '/\') . '/j ** | copen | match QuickFixSearch /\V' . escape(text, '/\') . '/'
-endf
-
-func! Open_vimrc()
-    :e $MYVIMRC
-endf
-
-func! Diff_against_n_minutes_ago()
-    let n = Prompt('How many minutes ago >>> ', 'Bold')
-    if n != '' | execute('earlier ' . n . 'm | %y | later ' . n . 'm | diffthis | vnew | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal nobuflisted | put | 1d | diffthis') | endif
-endf
-
-func! List_custom_functions()
-    let l:funcs = [ 'Strip_trailing_whitespace', 'Open_vimrc', 'Diff_against_n_minutes_ago', ]
-    let [f, _] = Lister(funcs, 'Custom Functions >>> ', 'Bold')
-    if f != '' | execute('call ' . f . '()') | endif
 endf
 
 
@@ -344,7 +331,7 @@ vnoremap <silent> <Leader>, y:exec 'vimgrep /\C\V' . escape(@@, '/\') . '/j ** <
 nnoremap <silent> <Leader>, :call Search_in_files('')<CR>
 nnoremap <silent> <Leader>f :call List_files()<CR>
 nnoremap <silent> <Leader>b :call List_buffers()<CR>
-nnoremap <silent> <Leader>c :call List_custom_functions()<CR>
+nnoremap <silent> <Leader>c :call List_custom_commands()<CR>
 nnoremap <silent> <Leader>t :vert term ++close<CR>
 
 nnoremap <silent> ga :set opfunc=Align<CR>g@
