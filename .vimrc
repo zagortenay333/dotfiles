@@ -550,6 +550,10 @@ call s:hi("PMenuSel", s:bg_faint, s:fg, "")
 call s:hi("PMenuSbar", s:fg, s:bg_faint, "")
 call s:hi("PMenuThumb", s:bg, s:yellow, "")
 
+call s:hi("DiffText", s:bg, s:blue, "")
+call s:hi("DiffAdd", s:bg, s:green, "")
+call s:hi("DiffChange", s:bg, s:yellow, "")
+call s:hi("DiffDelete", s:bg, s:red, "")
 
 " ==============================================================================
 " @@@ color / custom groups
