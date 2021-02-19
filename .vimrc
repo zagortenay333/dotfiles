@@ -85,19 +85,6 @@ augroup autocommands
     au FileType netrw set nocursorline
 augroup END
 
-func! Strip_trailing_whitespace()
-    let _s=@/
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    let @/=_s
-    call cursor(l, c)
-endf
-
-func! Open_vimrc()
-    :e $MYVIMRC
-endf
-
 func! Go_to_next_search_result(direction)
     let cmd = (a:direction == 1) ? "\<C-g>" : "\<C-t>"
     return repeat(cmd, 1)
@@ -274,16 +261,34 @@ func! List_buffers()
     endif
 endf
 
-func! List_custom_commands()
-    let l:commands = [ 'Strip_trailing_whitespace', 'Open_vimrc' ]
-    let [command, _] = Lister(commands, 'Commands >>> ', 'Bold')
-    if command != '' | execute('call ' . command . '()') | endif
+func! Strip_trailing_whitespace()
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    let @/=_s
+    call cursor(l, c)
 endf
 
 func! Search_in_files(needle)
     let text = Prompt('Search in files >>> ', 'Bold')
     if text == '' | return | endif
     exec 'vimgrep /\C\V' . escape(text, '/\') . '/j ** | copen | match QuickFixSearch /\V' . escape(text, '/\') . '/'
+endf
+
+func! Open_vimrc()
+    :e $MYVIMRC
+endf
+
+func! Diff_against_n_minutes_ago()
+    let n = Prompt('How many minutes ago >>> ', 'Bold')
+    if n != '' | execute('earlier ' . n . 'm | %y | later ' . n . 'm | diffthis | vnew | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal nobuflisted | put | 1d | diffthis') | endif
+endf
+
+func! List_custom_functions()
+    let l:funcs = [ 'Strip_trailing_whitespace', 'Open_vimrc', 'Diff_against_n_minutes_ago', ]
+    let [f, _] = Lister(funcs, 'Custom Functions >>> ', 'Bold')
+    if f != '' | execute('call ' . f . '()') | endif
 endf
 
 
@@ -339,7 +344,7 @@ vnoremap <silent> <Leader>, y:exec 'vimgrep /\C\V' . escape(@@, '/\') . '/j ** <
 nnoremap <silent> <Leader>, :call Search_in_files('')<CR>
 nnoremap <silent> <Leader>f :call List_files()<CR>
 nnoremap <silent> <Leader>b :call List_buffers()<CR>
-nnoremap <silent> <Leader>c :call List_custom_commands()<CR>
+nnoremap <silent> <Leader>c :call List_custom_functions()<CR>
 nnoremap <silent> <Leader>t :vert term ++close<CR>
 
 nnoremap <silent> ga :set opfunc=Align<CR>g@
@@ -381,11 +386,9 @@ noremap <A-l> <C-w>4>
 
 augroup keybindings
     au!
-
     au filetype netrw map <buffer> I %
     au filetype netrw map <buffer> o <CR>
 augroup END
-
 
 " ==============================================================================
 " @@@ color / palette
@@ -403,7 +406,6 @@ let s:green2    = "63A465"
 let s:orange    = "D2651D"
 let s:yellow    = "C19133"
 let s:magenta   = "AA73A1"
-
 
 " ==============================================================================
 " @@@ color / utils and settings
@@ -459,7 +461,6 @@ fun s:hi (group, fg, bg, attr)
     endif
 endf
 
-
 " ==============================================================================
 " @@@ color / standard language groups
 " ==============================================================================
@@ -499,7 +500,6 @@ call s:hi("Tag", s:fg, "", "none")
 call s:hi("Delimiter", s:fg, "", "none")
 call s:hi("SpecialComment" , s:fg, "", "none")
 call s:hi("Debug", s:fg, "", "none")
-
 
 " ==============================================================================
 " @@@ color / default groups
