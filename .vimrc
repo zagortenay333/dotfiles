@@ -72,7 +72,7 @@ set guioptions+=! " External commands are executed in a terminal window.
 " ==============================================================================
 " @@@ functions and autocommands
 " ==============================================================================
-let s:cmd = {}
+let s:cmd = {} " Function that appear in the List_custom_commands() buffer.
 
 augroup autocommands
     au!
@@ -228,15 +228,6 @@ func! Toggle_comment(type, ...)
     endfor
 endf
 
-func! s:cmd.Strip_trailing_whitespace()
-    let _s=@/
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    let @/=_s
-    call cursor(l, c)
-endf
-
 func! s:cmd.Open_vimrc()
     :e $MYVIMRC
 endf
@@ -246,10 +237,19 @@ func! s:cmd.Diff_against_n_minutes_ago()
     if n != '' | execute('earlier ' . n . 'm | %y | later ' . n . 'm | diffthis | vnew | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal nobuflisted | put | 1d | diffthis') | endif
 endf
 
+func! s:cmd.Strip_trailing_whitespace()
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    let @/=_s
+    call cursor(l, c)
+endf
+
 func! List_files()
     let files = globpath('.', '**/*', 0, 1)
     " let files = systemlist("find . -not -path '*/\.*' ! -name '*.o' ! -name '*.dep'")
-    let [file, do_vert] = Lister(files, 'Files >>> ', 'Bold')
+    let [file, do_vert] = Lister(files, 'Files >>> ' , 'Bold')
     if     file == '' | return
     elseif do_vert    | exec "vs \| edit" file
     else              | exec 'edit' file
