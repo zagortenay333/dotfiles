@@ -246,6 +246,11 @@ func! s:cmd.Strip_trailing_whitespace()
     call cursor(l, c)
 endf
 
+func! s:cmd.Change_language()
+    let n = Prompt('Which language >>> ', 'Bold')
+    execute('set syntax=' . n)
+endf
+
 func! List_files()
     let files = globpath('.', '**/*', 0, 1)
     " let files = systemlist("find . -not -path '*/\.*' ! -name '*.o' ! -name '*.dep'")
