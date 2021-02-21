@@ -72,7 +72,10 @@ set guioptions+=! " External commands are executed in a terminal window.
 " ==============================================================================
 " @@@ functions and autocommands
 " ==============================================================================
-let s:cmd = {} " Function that appear in the List_custom_commands() buffer.
+" This is a collection of custom function that will appear 
+" in the List_custom_commands() buffer. 
+" To add a function here define it like: func! s:custom_command.Foo()
+let s:custom_command = {}
 
 augroup autocommands
     au!
@@ -228,16 +231,16 @@ func! Toggle_comment(type, ...)
     endfor
 endf
 
-func! s:cmd.Open_vimrc()
+func! s:custom_command.Open_vimrc()
     :e $MYVIMRC
 endf
 
-func! s:cmd.Diff_against_n_minutes_ago()
+func! s:custom_command.Diff_against_n_minutes_ago()
     let n = Prompt('How many minutes ago >>> ', 'Bold')
     if n != '' | execute('earlier ' . n . 'm | %y | later ' . n . 'm | diffthis | vnew | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal nobuflisted | put | 1d | diffthis') | endif
 endf
 
-func! s:cmd.Strip_trailing_whitespace()
+func! s:custom_command.Strip_trailing_whitespace()
     let _s=@/
     let l = line(".")
     let c = col(".")
@@ -246,7 +249,7 @@ func! s:cmd.Strip_trailing_whitespace()
     call cursor(l, c)
 endf
 
-func! s:cmd.Change_language()
+func! s:custom_command.Change_language()
     let n = Prompt('Which language >>> ', 'Bold')
     execute('set syntax=' . n)
 endf
@@ -271,7 +274,7 @@ func! List_buffers()
 endf
 
 func! List_custom_commands()
-    let [f, _] = Lister(keys(s:cmd), 'Custom Functions >>> ', 'Bold')
+    let [f, _] = Lister(keys(s:custom_command), 'Custom Functions >>> ', 'Bold')
     if f != '' | execute('call s:cmd.' . f . '()') | endif
 endf
 
