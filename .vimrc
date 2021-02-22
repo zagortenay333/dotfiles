@@ -275,7 +275,7 @@ endf
 
 func! List_custom_commands()
     let [f, _] = Lister(keys(s:custom_command), 'Custom Functions >>> ', 'Bold')
-    if f != '' | execute('call s:cmd.' . f . '()') | endif
+    if f != '' | execute('call s:custom_command.' . f . '()') | endif
 endf
 
 func! Search_in_files(needle)
