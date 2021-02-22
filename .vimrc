@@ -116,7 +116,7 @@ func! Lister(list, prompt, prompt_color) abort
         let l:buf = bufnr("%")
         let &l:laststatus=a:laststatus_backup
         wincmd p
-        exec "bwipe" l:buf
+        execute "bwipe" l:buf
         redraw
         echo "\r"
         return [a:selection, a:do_vert]
@@ -156,14 +156,14 @@ func! Lister(list, prompt, prompt_color) abort
         elseif ch >=# 0x20 " Printable character
             let l:needle  .= nr2char(ch)
             let l:seq_old  = get(undotree(), 'seq_cur', 0)
-            exec 'silent keepp g!:' . needle . ':norm "_dd'
+            execute 'silent keepp g!:' . needle . ':norm "_dd'
             let l:seq_new = get(undotree(), 'seq_cur', 0)
             call cursor(1, 1)
             call add(l:undoseq, l:seq_new != l:seq_old)
         elseif ch ==# 0x09 " Tab
             let l:needle .= '.*'
             let l:seq_old  = get(undotree(), 'seq_cur', 0)
-            exec 'silent keepp g!:' . needle . ':norm "_dd'
+            execute 'silent keepp g!:' . needle . ':norm "_dd'
             let l:seq_new = get(undotree(), 'seq_cur', 0)
             call cursor(1, 1)
             call add(l:undoseq, l:seq_new != l:seq_old)
@@ -211,7 +211,7 @@ func! Align(type, ...)
         if n_to_insert == 0 | continue | endif
 
         call cursor(i, col)
-        exec "normal! " n_to_insert . "a \<esc>"
+        execute "normal! " n_to_insert . "a \<esc>"
     endfor
 endf
 
@@ -227,7 +227,7 @@ func! Toggle_comment(type, ...)
         let line = getline(i)
 
         if line =~ '^\s*$' | continue | endif
-        if line =~ '^\s*' . leader | exec 'silent s/\v\s*\zs' . leader . '\s*\ze//' | else | exec 'silent s/\v^(\s*)/\1' . leader . ' /' | endif
+        if line =~ '^\s*' . leader | execute 'silent s/\v\s*\zs' . leader . '\s*\ze//' | else | execute 'silent s/\v^(\s*)/\1' . leader . ' /' | endif
     endfor
 endf
 
@@ -259,8 +259,8 @@ func! List_files()
     " let files = systemlist("find . -not -path '*/\.*' ! -name '*.o' ! -name '*.dep'")
     let [file, do_vert] = Lister(files, 'Files >>> ' , 'Bold')
     if     file == '' | return
-    elseif do_vert    | exec "vs \| edit" file
-    else              | exec 'edit' file
+    elseif do_vert    | execute "vs \| edit" file
+    else              | execute 'edit' file
     endif
 endf
 
@@ -268,8 +268,8 @@ func! List_buffers()
     let buffers = map(split(execute('ls'), '\n'), 'strcharpart(v:val, 0)')
     let [buf, do_vert] = Lister(buffers, 'Buffers >>> ', 'Bold')
     if     buf == '' | return
-    elseif do_vert   | exec "vs \| buffer" split(buf)[0]
-    else             | exec 'buffer' split(buf)[0]
+    elseif do_vert   | execute "vs \| buffer" split(buf)[0]
+    else             | execute 'buffer' split(buf)[0]
     endif
 endf
 
@@ -278,10 +278,22 @@ func! List_custom_commands()
     if f != '' | execute('call s:custom_command.' . f . '()') | endif
 endf
 
-func! Search_in_files(needle)
-    let text = Prompt('Search in files >>> ', 'Bold')
+func! Do_global_search(needle)
+    let n = escape(a:needle, '/\')
+    execute('vimgrep /\C\V' . n . '/j ** | copen | match QuickFixSearch /\V' . n . '/')
+endf
+
+func! Global_search()
+    let text = Prompt('Global search >>> ', 'Bold')
     if text == '' | return | endif
-    exec 'vimgrep /\C\V' . escape(text, '/\') . '/j ** | copen | match QuickFixSearch /\V' . escape(text, '/\') . '/'
+    call Do_global_search(text)
+endf
+
+func! s:custom_command.Global_search_and_replace()
+    let old = escape(Prompt('Old >>> ', 'Bold'), '/\')
+    let new = escape(Prompt('New >>> ', 'Bold'), '/\')
+    call Do_global_search(old)
+    execute('cfdo %s/' . old . '/' . new . '/gI | w')
 endf
 
 " ==============================================================================
@@ -331,9 +343,9 @@ vnoremap . :normal! .<CR>
 vnoremap <expr> i mode() =~ '\cv' ? 'i' : 'I'
 vnoremap <expr> a mode() =~ '\cv' ? 'a' : 'A'
 
-nnoremap <silent> <Leader>a :exec 'Vexplore' getcwd()<CR>
-vnoremap <silent> <Leader>, y:exec 'vimgrep /\C\V' . escape(@@, '/\') . '/j ** <BAR> copen <BAR> match QuickFixSearch /\V' . escape(@@, '/\') . '/' <CR>
-nnoremap <silent> <Leader>, :call Search_in_files('')<CR>
+nnoremap <silent> <Leader>a :execute 'Vexplore' getcwd()<CR>
+vnoremap <silent> <Leader>, y:call Do_global_search(@@)<CR>
+nnoremap <silent> <Leader>, :call Global_search()<CR>
 nnoremap <silent> <Leader>f :call List_files()<CR>
 nnoremap <silent> <Leader>b :call List_buffers()<CR>
 nnoremap <silent> <Leader>c :call List_custom_commands()<CR>
@@ -439,17 +451,17 @@ let s:col_to_term_col = {
 
 fun s:hi (group, fg, bg, attr)
     if a:fg != ""
-        exec "hi " . a:group . " guifg=#" . a:fg
-        exec "hi " . a:group . " ctermfg=" . s:col_to_term_col[a:fg]
+        execute "hi " . a:group . " guifg=#" . a:fg
+        execute "hi " . a:group . " ctermfg=" . s:col_to_term_col[a:fg]
     endif
 
     if a:bg != ""
-        exec "hi " . a:group . " guibg=#" . a:bg
-        exec "hi " . a:group . " ctermbg=" . s:col_to_term_col[a:bg]
+        execute "hi " . a:group . " guibg=#" . a:bg
+        execute "hi " . a:group . " ctermbg=" . s:col_to_term_col[a:bg]
     endif
 
     if a:attr != ""
-        exec "hi " . a:group . " gui=" . a:attr . " cterm=" . a:attr
+        execute "hi " . a:group . " gui=" . a:attr . " cterm=" . a:attr
     endif
 endf
 
