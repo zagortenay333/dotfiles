@@ -235,6 +235,10 @@ func! s:custom_command.Open_vimrc()
     :e $MYVIMRC
 endf
 
+func! s:custom_command.Reload_vimrc()
+    :source $MYVIMRC
+endf
+
 func! s:custom_command.Diff_against_n_minutes_ago()
     let n = Prompt('How many minutes ago >>> ', 'Bold')
     if n != '' | execute('earlier ' . n . 'm | %y | later ' . n . 'm | diffthis | vnew | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal nobuflisted | put | 1d | diffthis') | endif
@@ -273,11 +277,6 @@ func! List_buffers()
     endif
 endf
 
-func! List_custom_commands()
-    let [f, _] = Lister(keys(s:custom_command), 'Custom Functions >>> ', 'Bold')
-    if f != '' | execute('call s:custom_command.' . f . '()') | endif
-endf
-
 func! Do_global_search(needle)
     let n = escape(a:needle, '/\')
     execute('vimgrep /\C\V' . n . '/j ** | copen | match QuickFixSearch /\V' . n . '/')
@@ -295,6 +294,15 @@ func! s:custom_command.Global_search_and_replace()
     call Do_global_search(old)
     execute('cfdo %s/' . old . '/' . new . '/gI | w')
 endf
+
+" We check whether this function exists in case it calls a
+" function that reloads the vimrc file like Reload_vimrc().
+if !exists('*List_custom_commands')
+    func! List_custom_commands()
+        let [f, _] = Lister(keys(s:custom_command), 'Custom Functions >>> ', 'Bold')
+        if f != '' | execute('call s:custom_command.' . f . '()') | endif
+    endf
+endif
 
 " ==============================================================================
 " @@@ keybindings
@@ -336,6 +344,7 @@ nnoremap <expr> <CR> &buftype ==# 'quickfix' ? "\<CR>" : ':normal o<CR>'
 
 nnoremap <Leader>v <C-w>v
 
+nnoremap Q q
 nnoremap r @
 vnoremap r :normal! @q<CR>
 vnoremap . :normal! .<CR>
