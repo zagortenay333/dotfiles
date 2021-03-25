@@ -12,10 +12,11 @@ syntax on
 set background=dark
 set termguicolors
 
-" set rulerformat=%40(%#BFaint#%=%t\ \ %l:%c%)
-" set laststatus=0
-set statusline=%<%F\ \ \ %=%l\ %c
-set laststatus=2 " Always show status line.
+set noruler
+set laststatus=0
+" set rulerformat=%40(%#Bold#%=%t\ \ %l:%c%)
+" set statusline=%<%F\ \ \ %=%l\ %c
+" set laststatus=2 " Always show status line.
 
 set showcmd
 set nonumber " Don't show line numbers
@@ -126,7 +127,7 @@ func! Lister(list, prompt, prompt_color) abort
         \ nobuflisted\ nonumber\ norelativenumber\ noswapfile\ nowrap\
         \ foldmethod=manual\ nofoldenable\ modifiable\ noreadonly
 
-    setlocal cursorline | let &l:laststatus=0
+    setlocal cursorline
 
     call setline(1, a:list)
     let l:needle  = ""
