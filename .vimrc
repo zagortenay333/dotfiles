@@ -11,6 +11,7 @@ set noswapfile
 syntax on
 set background=dark
 set termguicolors
+set lines=30 columns=120
 
 set noruler
 set laststatus=0
