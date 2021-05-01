@@ -11,7 +11,6 @@ set noswapfile
 syntax on
 set background=dark
 set termguicolors
-set lines=30 columns=120
 
 set noruler
 set laststatus=0
@@ -74,8 +73,8 @@ set guioptions+=! " External commands are executed in a terminal window.
 " ==============================================================================
 " @@@ functions and autocommands
 " ==============================================================================
-" This is a collection of custom function that will appear 
-" in the List_custom_commands() buffer. 
+" This is a collection of custom function that will appear
+" in the List_custom_commands() buffer.
 " To add a function here define it like: func! s:custom_command.Foo()
 let s:custom_command = {}
 
@@ -411,11 +410,11 @@ augroup END
 let s:bg        = "221A0F"
 let s:bg_faint  = "2B2114"
 let s:fg        = "B48E56"
+let s:brown     = "A45D43"
 let s:fg_faint  = "837668"
 let s:red       = "BD5157"
 let s:blue      = "6589AA"
 let s:cyan      = "558F7F"
-let s:brown     = "A45D43"
 let s:green     = "7E9038"
 let s:green2    = "63A465"
 let s:orange    = "D2651D"
@@ -565,9 +564,9 @@ call s:hi("PMenuSel", s:bg_faint, s:fg, "")
 call s:hi("PMenuSbar", s:fg, s:bg_faint, "")
 call s:hi("PMenuThumb", s:bg, s:yellow, "")
 
-call s:hi("DiffText", s:bg, s:blue, "")
+call s:hi("DiffText", s:bg, s:yellow, "")
 call s:hi("DiffAdd", s:bg, s:green, "")
-call s:hi("DiffChange", s:bg, s:yellow, "")
+call s:hi("DiffChange", s:bg, s:blue, "")
 call s:hi("DiffDelete", s:bg, s:red, "")
 
 " ==============================================================================

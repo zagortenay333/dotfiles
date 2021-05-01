@@ -84,6 +84,7 @@ setopt +o nomatch
 # @@@ Aliases
 # ==============================================================================
 alias gvim='gvim -geometry 200x200' # seems to work to make it fullscreen
+alias m='make'
 alias ve='gvim -geometry 200x200 ~/.vimrc'
 alias ze='gvim -geometry 200x200 ~/.zshrc'
 alias ls='ls --group-directories-first --color'
